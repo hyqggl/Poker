@@ -1,51 +1,57 @@
+package main;
+
 import bean.Card;
 import bean.Player;
 import bean.PokerSet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.*;
 
 
 public class MainGame {
 
-	private static PokerSet pokerset = new PokerSet();
+	private static PokerSet pokerset;
 	private static List<Player> playerList = new ArrayList<Player>();
+	private static List<Map<Integer,Integer>> playerBet;
+	private static List<Card> Ref;   // 5张牌
 	
 	public static void main(String[] args) {
-		System.out.println("-------------Created a pack of new Poker----------------");
-		System.out.println("-------------Shuffled the Poker-------------------------");
-		//洗牌
-		pokerset.shuffleTheCard();
 
-		//创建玩家
-		createPlayer();
-		System.out.println("====     Welcome, " + playerList.get(0).getPlayerInfo() + ", "
-				+ playerList.get(1).getPlayerInfo()+ "      ====");
-
-		//每个玩家抽几张
-		System.out.println("Each player gets how many cards? (Less than 26 inclusive): ");
-		int cardsToPull = enterPullNum();
-		
 		System.out.println("================    Game Starts   =====================");
+		//创建玩家
+		createPlayer(2);
+		int cardsToPull = 2;
 
-		//抽牌
-		pullCards(cardsToPull);
-		for (Player player : playerList) {
-			player.sortCards();
-		}
-		System.out.println("========== Cards  Sorted  ==========");
+		while (playerList.size() > 1) {
 
-		//比牌
-		compareMax();
+			System.out.println("-------------Created a pack of new Poker----------------");
+			pokerset = new PokerSet();
+			pokerset.shuffleTheCard();
 
-		System.out.println("=============================");
+			playerBet = new ArrayList<>();
+			Ref = new ArrayList<>();
 
-		//玩家展示手牌
-		for (Player player : playerList) {
-			player.displayCards();
+			pause(5);
+
+			//荷官牌
+			pullRefCards(5);
+			//玩家抽牌
+			pullCards(cardsToPull);
+
+			for (Player player : playerList) {
+				player.sortCards();
+			}
+			System.out.println("========== Cards  Sorted  ==========");
+
+			//比牌
+			compareMax();
+
+			System.out.println("=============================");
+
+			//玩家展示手牌
+			for (Player player : playerList) {
+				player.displayCards();
+			}
 		}
 	}
 	
@@ -71,20 +77,24 @@ public class MainGame {
 	}
 	
 
+	static void pullRefCards(int num) {
+		for (int i = 0; i < num; i++) {
+			Ref.add(pokerset.getCardList()
+					.get(pokerset.getCardList().size() - 1));
+			pokerset.getCardList()
+					.remove(pokerset.getCardList().size() - 1);
+		}
+	}
 	
 	static void pullCards(int num) {
 		for (int i = 0; i < num; i++){
-			playerList.get(0).getPlayerCard()
-					.add(pokerset.getCardList().get(pokerset.getCardList().size()-1));
-			pokerset.getCardList()
-					.remove(pokerset.getCardList().size()-1);
-
-			playerList.get(1).getPlayerCard()
-					.add(pokerset.getCardList().get(pokerset.getCardList().size()-1));
-			pokerset.getCardList()
-					.remove(pokerset.getCardList().size()-1);
+			for (Player player : playerList) {
+				player.getPlayerCard()
+						.add(pokerset.getCardList().get(pokerset.getCardList().size() - 1));
+				pokerset.getCardList()
+						.remove(pokerset.getCardList().size() - 1);
+			}
 		}
-		System.out.println("==============   Dealt " + num*2 + " cards in total ==============");
 	}
 	
 
@@ -105,10 +115,19 @@ public class MainGame {
 		}
 		}
 	}
-	
-	static void createPlayer() {
+
+
+	static void pause(int n) {
+		try {
+			Thread.sleep(1000 * n);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	static void createPlayer(int playerNum) {
 		System.out.println("-------------Creating new players------------------------");
-		int playerNum = 2;
 		for (int i = 0; i < playerNum; i++) {
 			Player p = new Player();
 			playerList.add(p);

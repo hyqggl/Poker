@@ -22,12 +22,14 @@ public class Player {
 		Random ran = new Random();
 		id = ran.nextInt(100);
 		name = NamePool.nameList.get(ran.nextInt(NamePool.nameList.size()));
+		chips = ran.nextInt(100) * 100;
 		this.playerCard = new ArrayList<Card>();
 	}
 	
-	public Player(int id, String name) {
+	public Player(int id, String name, long chips) {
 		this.id = id;
 		this.name = name;
+		this.chips = chips;
 		this.playerCard = new ArrayList<Card>();
 	}
 	

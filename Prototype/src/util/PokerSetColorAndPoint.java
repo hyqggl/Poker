@@ -8,11 +8,12 @@ import java.util.List;
  * 用于储存卡牌花色以及点数
  * 花色靠前的更大 （Spade > Heart > Club > Diamond)
  * 点数靠后的更大  (A > K > ... > 3 > 2)
+ * 14, 13, ..., 2
  */
 public class PokerSetColorAndPoint {
 
-    public static List<String> colors = new ArrayList<String>();
-    public static List<String> points = new ArrayList<String>();
+    public static List<String> colors = new ArrayList<>();
+    public static List<String> points = new ArrayList<>();
 
     static {
         colors.add("Spade");
