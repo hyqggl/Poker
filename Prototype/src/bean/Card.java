@@ -1,6 +1,6 @@
 package bean;
 
-import util.PokerSetColorAndPoint;
+import util.ColorAndPoint;
 
 import java.util.Comparator;
 
@@ -10,11 +10,15 @@ import java.util.Comparator;
 public class Card/* implements Comparator<bean.Card>*/{
 
 	private String color;
+	private int colorIdx;
 	private String point;
+	private int pointIdx;
 
-	public Card(String color, String point) {
-		this.color = color;
-		this.point = point;
+	public Card(int colorIdx, int pointIdx) {
+		this.colorIdx = colorIdx;
+		this.pointIdx = pointIdx;
+		this.color = ColorAndPoint.colors[colorIdx];
+		this.point = ColorAndPoint.points[pointIdx];
 	}
 
 
@@ -22,15 +26,28 @@ public class Card/* implements Comparator<bean.Card>*/{
 	 * Compare two cards
 	 * 比较两张卡牌
 	 */
-	public static Comparator<Card> comparator = new Comparator<Card>() {
+	//点数优先
+	public static Comparator<Card> comparatorByPoint = new Comparator<Card>() {
 	public int compare(Card o1, Card o2) {
 		if (o1 == null && o2 == null) return 0;
-		int comp = PokerSetColorAndPoint.points.indexOf(o1.getPoint()) - PokerSetColorAndPoint.points.indexOf(o2.getPoint());
+		int comp = o1.getPointIdx() - o2.getPointIdx();
 		if (comp == 0) {
-			comp = -PokerSetColorAndPoint.colors.indexOf(o1.getColor()) + PokerSetColorAndPoint.colors.indexOf(o2.getColor());
+			comp = -o1.getColorIdx() + o2.getColorIdx();
 		}
 		return comp;
 	}
+	};
+
+	//花色优先
+	public static Comparator<Card> comparatorByColor = new Comparator<Card>() {
+		public int compare(Card o1, Card o2) {
+			if (o1 == null && o2 == null) return 0;
+			int comp = - o1.getColorIdx() + o2.getColorIdx();
+			if (comp == 0) {
+				comp = o1.getPointIdx() - o2.getPointIdx();
+			}
+			return comp;
+		}
 	};
 	
 	
@@ -79,5 +96,21 @@ public class Card/* implements Comparator<bean.Card>*/{
 
 	public void setPoint(String point) {
 		this.point = point;
+	}
+
+	public int getColorIdx() {
+		return colorIdx;
+	}
+
+	public void setColorIdx(int colorIdx) {
+		this.colorIdx = colorIdx;
+	}
+
+	public int getPointIdx() {
+		return pointIdx;
+	}
+
+	public void setPointIdx(int pointIdx) {
+		this.pointIdx = pointIdx;
 	}
 }

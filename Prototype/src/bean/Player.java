@@ -37,12 +37,7 @@ public class Player {
 		return "["+this.id+"]" + " " + this.name;
 	}
 
-	public void sortCards() {
-		Collections.sort(this.playerCard, Card.comparator);
-	}
-
 	public void displayCards() {
-		System.out.println("Display " +this.name+ "'s cards:");
 		System.out.print(this.name + ":[ ");
 		for (Card c : this.playerCard) {
 			System.out.print(c.getColor() + "-" + c.getPoint() + " ");

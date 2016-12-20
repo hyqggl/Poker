@@ -1,7 +1,6 @@
 package bean;
 
-import bean.Card;
-import util.PokerSetColorAndPoint;
+import util.ColorAndPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ public class PokerSet {
 	//Create all cards
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 13; j++) {
-			Card aCard = new Card(PokerSetColorAndPoint.colors.get(i), PokerSetColorAndPoint.points.get(j));
+			Card aCard = new Card(i, j);
 			cardList.add(aCard);
 		}
 	}
