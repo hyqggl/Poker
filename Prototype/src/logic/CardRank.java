@@ -179,7 +179,7 @@ public class CardRank {
         return max;
     }
 
-    private static int MaxSeqPoint(List<Card> cards, int start, int end) {
+    public static int MaxSeqPoint(List<Card> cards, int start, int end) {
         int max = 1;
         int i = 1;
         for (int idx = start; idx < end; idx++) {

@@ -51,8 +51,8 @@ public class MainGame {
 				player.displayCards();
 				rank = CardRank.getRank(Ref,player.getPlayerCard());
 				System.out.println(rank + " " + CardRank.PName[rank]);
-				if (rank == 4) {
-					int[] idx = BestComb.getCombIdx(rank, Ref, player.getPlayerCard());
+				if (rank == 5) {
+					List<Integer> idx = BestComb.getCombIdx(rank, Ref, player.getPlayerCard());
 					if (idx != null) {
 						System.out.print(rank);
 						Print.printIntArray(idx);
@@ -61,7 +61,7 @@ public class MainGame {
 					break;
 				}
 			}
-			if (rank == 4) break;
+			if (rank == 5) break;
 
 		}
 	}
