@@ -1,10 +1,9 @@
 package logic;
 
 import bean.Card;
+import util.Rule;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by huyiqing on 16/12/19.
@@ -18,8 +17,15 @@ public class CardRank {
             {"RoyalFlush", "StraightFlush", "FourOfAKind", "Fullhouse", "Flush",
                     "Straight", "ThreeOfAKind", "TwoPairs", "OnePair", "HighCard"};
 
-    //得到牌力级别
+    /**
+     *
+     * @param ref
+     * @param playerCards
+     * @return 返回牌型
+     */
     public static int getRank(List<Card> ref, List<Card> playerCards) {
+
+
         cards = new ArrayList<>();
         for (Card c : ref) {
             cards.add(c);
@@ -76,16 +82,16 @@ public class CardRank {
      */
     private static int isStraight(List<Card> cards) {
 
-        for (int end = cards.size()-1; end >= 4; end--) {
+        for (int end = cards.size()-1; end >= Rule.combCardNum - 1; end--) {
             int x = 1;
             int j = end - 1;
-            while ((x <= 4) && ((cards.get(end).getPointIdx() - x) == (cards.get(j).getPointIdx()))) {
+            while ((x <= Rule.combCardNum - 1) && ((cards.get(end).getPointIdx() - x) == (cards.get(j).getPointIdx()))) {
                 x++;
                 do {j--;}
                 while ((j > 0) && (cards.get(j).getPointIdx() == cards.get(j+1).getPointIdx()));
                 if (j < 0) break;
             }
-            if (x == 5) return 5;
+            if (x == Rule.combCardNum) return 5;
         }
         return 9;
     }
@@ -109,11 +115,11 @@ public class CardRank {
         for (int i = cards.size(); i >= 3; i--) {
             if (MaxSeqPoint(cards, i - 2, i) == 3) {
                 //前段是否有对子
-                if ((i >= 5) && (MaxSeqPoint(cards, 1, i-3) == 2)){
+                if ((i >= 3 + 2) && (MaxSeqPoint(cards, 1, i-3) == 2)){
                     return 3;
                 }
                 //后段是否有对子
-                if ((i <= 5) && (MaxSeqPoint(cards, i+1, cards.size()) == 2)) {
+                if ((i <= Rule.RefNum + Rule.PCardNum - 2) && (MaxSeqPoint(cards, i+1, cards.size()) == 2)) {
                     return 3;
                 }
                 return 6;
@@ -155,7 +161,7 @@ public class CardRank {
      * @param end   第几张牌结束
      * @return 最大连续花色数
      */
-    private static int MaxSeqColor(List<Card> cards, int start, int end) {
+    public static int MaxSeqColor(List<Card> cards, int start, int end) {
         int max = 1;
         int i = 1;
         for (int idx = start; idx < end; idx++) {
@@ -196,7 +202,7 @@ public class CardRank {
      * @param end   第几张牌结束
      * @return 是否有顺子（5张连续点数）
      */
-    private static boolean SameColorHaveSeq(List<Card> cards, int start, int end) {
+    public static boolean SameColorHaveSeq(List<Card> cards, int start, int end) {
         if ((end - start + 1) < 5) return false;
         for (int i = start - 1; i < end - 4; i++) {
             int x = 1;

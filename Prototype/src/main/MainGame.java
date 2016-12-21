@@ -3,7 +3,10 @@ package main;
 import bean.Card;
 import bean.Player;
 import bean.PokerSet;
+import logic.BestComb;
 import logic.CardRank;
+import util.Print;
+import util.Rule;
 
 import java.util.*;
 
@@ -20,7 +23,7 @@ public class MainGame {
 		System.out.println("================    Game Starts   =====================");
 		//创建玩家
 		createPlayer(2);
-		int cardsToPull = 2;
+		int cardsToPull = Rule.PCardNum;
 
 		while (playerList.size() > 1) {
 
@@ -33,8 +36,8 @@ public class MainGame {
 			clearPlayerCards();     //清空玩家手牌
 
 			//荷官牌
-			pullRefCards(5);
-			showRefCards(5);
+			pullRefCards(Rule.RefNum);
+			showRefCards(Rule.RefNum);
 
 			//玩家抽牌
 			pullCards(cardsToPull);
@@ -48,9 +51,17 @@ public class MainGame {
 				player.displayCards();
 				rank = CardRank.getRank(Ref,player.getPlayerCard());
 				System.out.println(rank + " " + CardRank.PName[rank]);
-				if (rank == 7 ) break;
+				if (rank == 4) {
+					int[] idx = BestComb.getCombIdx(rank, Ref, player.getPlayerCard());
+					if (idx != null) {
+						System.out.print(rank);
+						Print.printIntArray(idx);
+						Print.printComb(idx, Ref, player.getPlayerCard());
+					}
+					break;
+				}
 			}
-			if (rank == 7) break;
+			if (rank == 4) break;
 
 		}
 	}
@@ -88,34 +99,7 @@ public class MainGame {
 			}
 		}
 	}
-	
 
-	
-	static int enterPullNum(){
-		int x;
-		while (true){
-		try{
-			Scanner in = new Scanner(System.in);
-			x = in.nextInt();
-			if (x < 1 || x > 26) System.out.println("From 1 to 26. Please enter again."); 
-			else return x;
-		}   catch(InputMismatchException e){
-			System.out.println("Oops.Please enter a integer.");		
-		}
-			catch(Exception e){
-				System.out.println("Oops.Unexpected error.");			
-		}
-		}
-	}
-
-
-	private static void pause(int n) {
-		try {
-			Thread.sleep(1000 * n);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
 
 
 	private static void createPlayer(int playerNum) {
@@ -124,44 +108,14 @@ public class MainGame {
 			Player p = new Player();
 			playerList.add(p);
 		}
-		/*while (true){
-		try{
-			Scanner in = new Scanner(System.in);
-			System.out.println("Fisrt bean.Player:");
-			System.out.print("Enter ID:");
-			int newId = in.nextInt();
-			System.out.print("Enter name:");
-			String newName = in.next();
-			player1 = new bean.Player(newId, newName);
-			System.out.println();
-			System.out.println("Welcome, " + newName);
-			System.out.println();
-			break;
-			}   catch(InputMismatchException e){
-				System.out.println("Oops.Please enter a integer.");		
-			}
-				catch(Exception e){
-					System.out.println("Oops.Unexpected error.");			
-			}
-		}
-		while (true){
-		try{
-			Scanner in = new Scanner(System.in);
-			System.out.println("Second bean.Player:");
-			System.out.print("Enter ID:");
-			int newId = in.nextInt();
-			System.out.print("Enter name:");
-			String newName = in.next();
-			player2 = new bean.Player(newId, newName);
-			break;
-			}    catch(InputMismatchException e){
-				System.out.println("Oops.Please enter a integer.");		
-			}
-				catch(Exception e){
-			System.out.println("Oops.Unexpected error.");			
-			}
-		}*/
 	}
-	
+
+	private static void pause(int n) {
+		try {
+			Thread.sleep(1000 * n);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 }
