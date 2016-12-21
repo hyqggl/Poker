@@ -14,3 +14,5 @@ A simple Poker game prototype
 
 16/12/21 完成全部牌型。比牌能够返回牌所在的位置
          
+
+![image](https://github.com/hyqggl/Poker/raw/master/demo/12.21.png)
