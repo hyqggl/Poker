@@ -33,7 +33,7 @@ public class MainGame {
 
 			playerBet = new ArrayList<>();
 			Ref = new ArrayList<>();
-			clearPlayerCards();     //清空玩家手牌
+			clearPlayerCardsAndCache();     //清空玩家手牌
 
 			//荷官牌
 			pullRefCards(Rule.RefNum);
@@ -42,6 +42,8 @@ public class MainGame {
 			//玩家抽牌
 			pullCards(cardsToPull);
 
+			//RankCache 用于记录玩家最终牌型、牌力、位置
+
 
 			System.out.println("=============================");
 
@@ -49,26 +51,27 @@ public class MainGame {
 			//玩家展示手牌
 			for (Player player : playerList) {
 				player.displayCards();
-				rank = CardRank.getRank(Ref,player.getPlayerCard());
+				rank = CardRank.getRank(Ref.subList(0,3),player.getPlayerCard());
 				System.out.println(rank + " " + CardRank.PName[rank]);
-				if (rank == 5) {
-					List<Integer> idx = BestComb.getCombIdx(rank, Ref, player.getPlayerCard());
+				if (rank == 9) {
+					List<Integer> idx = BestComb.getCombIdx(rank, Ref.subList(0,3), player.getPlayerCard());
 					if (idx != null) {
 						System.out.print(rank);
 						Print.printIntArray(idx);
-						Print.printComb(idx, Ref, player.getPlayerCard());
+						Print.printComb(idx, Ref.subList(0,3), player.getPlayerCard());
 					}
 					break;
 				}
 			}
-			if (rank == 5) break;
+			if (rank == 9) break;
 
 		}
 	}
 
-	private static void clearPlayerCards() {
+	private static void clearPlayerCardsAndCache() {
 		for (Player player : playerList) {
 			player.getPlayerCard().clear();
+			player.getRankCache().clear();
 		}
 	}
 

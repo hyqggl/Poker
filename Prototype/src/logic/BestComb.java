@@ -14,16 +14,14 @@ public class BestComb {
 
     private static List<Card> cards;
 
-    public static String[] PName =
-            {"RoyalFlush", "StraightFlush", "FourOfAKind", "Fullhouse", "Flush",
-                    "Straight", "ThreeOfAKind", "TwoPairs", "OnePair", "HighCard"};
-
     /**
      * 参考牌5张，玩家牌2张
      * 依次0, 1, 2, 3, 4, 5, 6
      * @return 返回一个列表
      * 0: rank
      * 1: 第一张点数   2: 第一张位置   3: 第二张点数  4: 第二张位置 .....
+     * "RoyalFlush", "StraightFlush", "FourOfAKind", "Fullhouse", "Flush",
+        "Straight", "ThreeOfAKind", "TwoPairs", "OnePair", "HighCard"
      */
     public static List<Integer> getCombIdx(int rank, List<Card> ref, List<Card> playerCards)  {
 
@@ -130,7 +128,7 @@ public class BestComb {
             } else {
                 int count = 0;
                 for (int j = temp.size()-1; j >= 0; j--) {
-                    if ((count < 3)&&((temp.get(j).getPointIdx() != idx.get(1)) && (temp.get(j).getPointIdx() != idx.get(3)))) {
+                    if ((count < 3)&&((temp.get(j).getPointIdx() != idx.get(1)))) { //TODO
                         idx.add(temp.get(j).getPointIdx());
                         idx.add(cards.indexOf(temp.get(j)));
                         count ++;
@@ -151,7 +149,7 @@ public class BestComb {
         idx.add(rank);
         Collections.sort(temp, Card.comparatorByColor);
         for (int end = temp.size()-1; end >= Rule.combCardNum-1; end--) {
-            if (CardRank.MaxSeqColor(temp, end + 2 - Rule.combCardNum, end + 1) == Rule.combCardNum){
+            if (CardRank.isSameColor(temp, end + 2 - Rule.combCardNum, end + 1)){
                 if ((rank == 4) ||
                         ((rank == 0) && (temp.get(end).getPoint().equals("A")))
                                 ||
@@ -180,7 +178,7 @@ public class BestComb {
         idx.add(rank);
         Collections.sort(temp, Card.comparatorByPoint);
         for (int end = temp.size()-1; end >= Rule.combCardNum-2; end--) {
-            if ((CardRank.MaxSeqPoint(temp, end + 3 - Rule.combCardNum, end + 1) == 4)) {
+            if (CardRank.isSamePoint(temp, end + 3 - Rule.combCardNum, end + 1)) {
                     int i = 0;
                     while (i <= 3) {
                         idx.add(temp.get(end - i).getPointIdx());
@@ -209,7 +207,7 @@ public class BestComb {
         idx.add(rank);
         Collections.sort(temp, Card.comparatorByPoint);
         for (int end = temp.size()-1; end >= Rule.combCardNum-3; end--) {
-            if ((CardRank.MaxSeqPoint(temp, end + 4 - Rule.combCardNum, end + 1) == 3)) {
+            if (CardRank.isSamePoint(temp, end + 4 - Rule.combCardNum, end + 1)) {
                 if (rank == 3) {
                     int i = 0;
                     while (i <= 2) {

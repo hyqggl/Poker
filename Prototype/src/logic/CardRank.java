@@ -106,20 +106,20 @@ public class CardRank {
     private static int fourOrThree(List<Card> cards) {
         //是否为四条
         for (int i = cards.size(); i >= 4; i--) {
-            if (MaxSeqPoint(cards, i - 3, i) == 4) {
+            if (isSamePoint(cards, i - 3, i)) {
                 return 2;
             }
         }
 
         //葫芦或三条
         for (int i = cards.size(); i >= 3; i--) {
-            if (MaxSeqPoint(cards, i - 2, i) == 3) {
+            if (isSamePoint(cards, i - 2, i)) {
                 //前段是否有对子
-                if ((i >= 3 + 2) && (MaxSeqPoint(cards, 1, i-3) == 2)){
+                if ((i >= 5) && (MaxSeqPoint(cards, 1, i-3) >= 2)){
                     return 3;
                 }
                 //后段是否有对子
-                if ((i <= Rule.RefNum + Rule.PCardNum - 2) && (MaxSeqPoint(cards, i+1, cards.size()) == 2)) {
+                if ((i <= cards.size() - 2) && (MaxSeqPoint(cards, i+1, cards.size()) >= 2)) {
                     return 3;
                 }
                 return 6;
@@ -140,7 +140,7 @@ public class CardRank {
     private static int isFlush(List<Card> cards) {
         for (int i = cards.size(); i >= 5; i--) {
             //有同花
-            if (MaxSeqColor(cards, i - 4, i) == 5) {
+            if (isSameColor(cards, i - 4, i)) {
                 //同花顺
                 if (SameColorHaveSeq(cards, i-4, i)) {
                     //同花大顺
@@ -221,5 +221,19 @@ public class CardRank {
         return false;
     }
 
+    public static boolean isSameColor(List<Card> cards, int start, int end) {
+        for (int i = start - 1; i < end - 1; i++) {
+            if (cards.get(i).getColorIdx() != cards.get(i+1).getColorIdx())
+                return false;
+        }
+        return true;
+    }
 
+    public static boolean isSamePoint(List<Card> cards, int start, int end) {
+        for (int i = start - 1; i < end - 1; i++) {
+            if (cards.get(i).getPointIdx() != cards.get(i+1).getPointIdx())
+                return false;
+        }
+        return true;
+    }
 }
