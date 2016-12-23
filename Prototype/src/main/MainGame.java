@@ -20,7 +20,6 @@ public class MainGame {
 	
 	public static void main(String[] args) {
 
-		System.out.println("================    Game Starts   =====================");
 		//创建玩家
 		createPlayer(2);
 		int cardsToPull = Rule.PCardNum;
@@ -33,7 +32,7 @@ public class MainGame {
 
 			playerBet = new ArrayList<>();
 			Ref = new ArrayList<>();
-			clearPlayerCardsAndCache();     //清空玩家手牌
+			clearPlayerCardsAndCache();     //清空玩家手牌 和 最佳牌型缓存
 
 			//荷官牌
 			pullRefCards(Rule.RefNum);
@@ -41,30 +40,36 @@ public class MainGame {
 
 			//玩家抽牌
 			pullCards(cardsToPull);
-
 			//RankCache 用于记录玩家最终牌型、牌力、位置
 
 
 			System.out.println("=============================");
 
-			int rank = 9;
-			//玩家展示手牌
-			for (Player player : playerList) {
-				player.displayCards();
-				rank = CardRank.getRank(Ref.subList(0,3),player.getPlayerCard());
-				System.out.println(rank + " " + CardRank.PName[rank]);
-				if (rank == 9) {
-					List<Integer> idx = BestComb.getCombIdx(rank, Ref.subList(0,3), player.getPlayerCard());
+			for (int round = 3; round <= 5; round++) {
+
+				int rank = 9;
+				//玩家展示手牌
+				for (Player player : playerList) {
+					player.displayCards();
+					rank = CardRank.getRank(Ref.subList(0, round), player.getPlayerCard());
+					Print.printRank(rank);
+					List<Integer> idx = BestComb.getCombIdx(rank, Ref.subList(0, round), player.getPlayerCard());
 					if (idx != null) {
 						System.out.print(rank);
 						Print.printIntArray(idx);
-						Print.printComb(idx, Ref.subList(0,3), player.getPlayerCard());
+						Print.printComb(idx, Ref.subList(0, round), player.getPlayerCard());
 					}
-					break;
 				}
-			}
-			if (rank == 9) break;
 
+			} //round
+		} //while
+	}
+
+	private static void fullAllPlayersRankCache(List<Card> ref) {
+		int rank;
+		for (Player player : playerList) {
+			rank = CardRank.getRank(ref,player.getPlayerCard());
+			player.setRankCache(BestComb.getCombIdx(rank, ref, player.getPlayerCard()));
 		}
 	}
 

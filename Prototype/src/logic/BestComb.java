@@ -284,9 +284,6 @@ public class BestComb {
                     minIdx = j;
                 }
             }
-//            idx[i] = idx[i] ^ idx[minIdx];
-//            idx[minIdx] = idx[i] ^ idx[minIdx];
-//            idx[i] = idx[i] ^ idx[minIdx];
             temp = idx[i];
             idx[i] = idx[minIdx];
             idx[minIdx] = temp;

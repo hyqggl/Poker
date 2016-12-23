@@ -1,6 +1,7 @@
 package util;
 
 import bean.Card;
+import logic.CardRank;
 
 import java.util.List;
 
@@ -8,6 +9,10 @@ import java.util.List;
  * Created by huyiqing on 16/12/21.
  */
 public class Print {
+
+    public static void printRank(int rank) {
+        System.out.println(rank + " " + CardRank.PName[rank]);
+    }
 
     public static void printIntArray(List<Integer> inta) {
         System.out.print(" [ ");
