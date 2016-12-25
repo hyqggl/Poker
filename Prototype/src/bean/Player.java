@@ -12,6 +12,7 @@ public class Player {
 
 	private int id;
 	private String name;
+	private int seatNo;
 	private long chips;
 	private List<Card> playerCard;
 	private List<Integer> rankCache; //RankCache 用于记录玩家最终牌型、牌力、位置
@@ -38,6 +39,14 @@ public class Player {
 	
 	public String getPlayerInfo(){
 		return "["+this.id+"]" + " " + this.name;
+	}
+
+	public void reduceChips(long num) {
+		this.chips -= num;
+	}
+
+	public void addChips(long num) {
+		this.chips += num;
 	}
 
 	public void displayCards() {
@@ -86,5 +95,23 @@ public class Player {
 
 	public void setRankCache(List<Integer> rankCache) {
 		this.rankCache = rankCache;
+	}
+
+	public int getSeatNo() {
+		return seatNo;
+	}
+
+	public void setSeatNo(int seatNo) {
+		this.seatNo = seatNo;
+	}
+
+	@Override
+	public String toString() {
+		return "Player{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				", seatNo=" + seatNo +
+				", chips=" + chips +
+				'}';
 	}
 }

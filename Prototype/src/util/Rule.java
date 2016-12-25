@@ -13,4 +13,7 @@ public class Rule {
 
     //组合几张牌
     public static final int combCardNum = 5;
+
+    //最大玩家数
+    public static final int MaxPlayernum = 8;
 }
