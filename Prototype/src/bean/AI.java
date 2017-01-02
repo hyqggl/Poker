@@ -5,7 +5,7 @@ package bean;
  */
 public interface AI {
 
-    double riskPreference = 0; //影响下注
+    double riskPreference = 0; //影响下注 0 to 1
 
     double chanceToLeave = 0;  //离开几率
 
