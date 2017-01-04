@@ -15,6 +15,7 @@ public class Player {
 	private int seatNo;
 	private long chips;
 	private List<Card> playerCard;
+	private int cardPower;
 	private List<Integer> rankCache; //RankCache 用于记录玩家最终牌型、牌力、位置
 
 	/**
@@ -27,6 +28,7 @@ public class Player {
 		this.chips = ran.nextInt(100) * 100;
 		this.playerCard = new ArrayList<>();
 		this.rankCache = new ArrayList<>();
+		this.seatNo = -1;
 	}
 	
 	public Player(int id, String name, long chips) {
@@ -35,6 +37,7 @@ public class Player {
 		this.chips = chips;
 		this.playerCard = new ArrayList<>();
 		this.rankCache = new ArrayList<>();
+		this.seatNo = -1;
 	}
 	
 	public String getPlayerInfo(){
@@ -105,6 +108,27 @@ public class Player {
 		this.seatNo = seatNo;
 	}
 
+	public int getCardPower() {
+		return cardPower;
+	}
+
+	public void setCardPower2Zero() {
+		this.cardPower = 0;
+	}
+
+	public void generateCardPower() {
+		this.cardPower = 0;
+		if (rankCache.size() != 0) {
+			cardPower += 10 - rankCache.get(0);
+			int j = 1;
+			while (j < rankCache.size()) {
+				cardPower *= 16;
+				cardPower += rankCache.get(j);
+				j += 2;
+			}
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "Player{" +
@@ -112,6 +136,7 @@ public class Player {
 				", name='" + name + '\'' +
 				", seatNo=" + seatNo +
 				", chips=" + chips +
+				", cardPower=" + cardPower +
 				'}';
 	}
 }

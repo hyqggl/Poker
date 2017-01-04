@@ -18,19 +18,21 @@ public class MainGame {
 	private static List<Player> playerList = new ArrayList<Player>();
 	private static List<Map<Integer, Long>> playerBet;    //记录玩家下注
 	private static List<Long> betPool;
-	//-1空座  1玩家正常在座  2弃牌  0起身
+	//-1空座  1玩家正常在座  2弃牌 3allIn 0起身(观战，下局开始前离开）
 	private static int[] playerStatus = new int[Rule.MaxPlayernum];
 	private static List<Card> Ref;   // 5张牌
 	
 	public static void main(String[] args) {
 
-		initialization();
+		initialization(); //playerStatus
 		//创建玩家
-		createPlayer(2);
+		createPlayer(4);
 		int cardsToPull = Rule.PCardNum;
 
 		while (playerList.size() > 1) {
 
+
+			chargeTableFee();      //收取开局费
 			System.out.println("-------------Created a pack of new Poker----------------");
 			pokerset = new PokerSet();       //新牌
 			pokerset.shuffleTheCard();	     //洗牌
@@ -38,7 +40,7 @@ public class MainGame {
 			playerBet = new ArrayList<>();
 			betPool = new ArrayList<>();
 			Ref = new ArrayList<>();
-			clearPlayerCardsAndCache();     //清空玩家手牌 和 最佳牌型缓存
+			clearPlayerCardsNCacheNPower();     //清空玩家手牌 和 最佳牌型缓存
 
 			//荷官牌
 			pullRefCards(Rule.RefNum);
@@ -69,27 +71,67 @@ public class MainGame {
 				}
 				playerDecision(round);
 			} //round
-			fullAllPlayersRankCache(Ref);
-			finalCompare();
+			List<List<Player>> fc = finalCompare();
+			for (List<Player> l : fc) {
+				for (Player p : l) {
+					System.out.print(p.getCardPower() + " ");
+				}
+				System.out.println();
+			}
+			pause(10);
 			for (Player p : playerList) {
 				System.out.println(p.toString());
 			}
-			checkPlayerStatus();
+			checkPlayerStatus();	//检查玩家筹码是否为0, 踢出筹码不足的玩家。
 		} //while
 	}
 
-	private static void finalCompare(){
-		int maxIdx = -1;
-		int s = playerList.size();
-		do {maxIdx++;} while ((maxIdx < s) && (playerStatus[playerList.get(maxIdx).getSeatNo()] != 1));
-		for (int i = maxIdx + 1; i < s; i++) {
-			if (Compare.comp2p(playerList.get(i), playerList.get(maxIdx)) > 0) {
-				maxIdx = i;
+
+
+	private static List<List<Player>> finalCompare(){
+		List<Integer> avaliablePlayerIndex = new ArrayList<>();
+		avaliablePlayerIndex.clear();
+		for (int i = 0; i < playerList.size(); i++) {
+			if (playerStatus[playerList.get(i).getSeatNo()] == 1
+					|| playerStatus[playerList.get(i).getSeatNo()] == 3 )
+				avaliablePlayerIndex.add(i);
+		}
+		fullPlayersRankCache(avaliablePlayerIndex,Ref);
+		int s = avaliablePlayerIndex.size();
+		int[] api_copy = new int[s];
+		for (int i = 0; i < s; i++) { api_copy[i] = avaliablePlayerIndex.get(i); }
+		for (int i = 0; i < s - 1; i++) {
+			int maxidx = i;
+			for (int j = i + 1; j < s; j++) {
+				if (Compare.comp2p(playerList.get(api_copy[maxidx]), playerList.get(api_copy[j])) < 0) {
+					maxidx = j;
+				}
 			}
+			int temp = api_copy[i];
+			api_copy[i] = api_copy[maxidx];
+			api_copy[maxidx] = temp;
 		}
-		for (Long l : betPool) {
-			playerList.get(maxIdx).addChips(l);
+		// 上面 得到按牌力从大到小排序的 PlayerIndex
+		// 下方 得到奖金池，瓜分顺序
+		List<List<Player>> finalPlayerRank = new ArrayList<>();
+		int rank = 0;
+		List<Player> l = new ArrayList<>();
+		l.add(playerList.get(api_copy[0]));
+		finalPlayerRank.add(l);
+		int j = 1;
+		while (j < api_copy.length) {
+			if (Compare.comp2p(playerList.get(api_copy[j-1]), playerList.get(api_copy[j])) == 0) {
+				finalPlayerRank.get(rank).add(playerList.get(api_copy[j]));
+			} else {
+				rank++;
+				l = new ArrayList<>();
+				l.add(playerList.get(api_copy[j]));
+				finalPlayerRank.add(l);
+			}
+			j++;
 		}
+
+		return finalPlayerRank;
 	}
 
 	private static void playerDecision(int round) {
@@ -116,19 +158,20 @@ public class MainGame {
 		for (int i = 0; i < playerStatus.length; i++) {playerStatus[i] = -1;}
 	}
 
-	private static void fullAllPlayersRankCache(List<Card> ref) {
+	private static void fullPlayersRankCache(List<Integer> l, List<Card> ref) {
 		int rank;
-		for (Player player : playerList) {
-			rank = CardRank.getRank(ref,player.getPlayerCard());
-			player.setRankCache(BestComb.getCombIdx(rank, ref, player.getPlayerCard()));
+		for (Integer ln : l) {
+			rank = CardRank.getRank(ref,playerList.get(ln).getPlayerCard());
+			playerList.get(ln).setRankCache(BestComb.getCombIdx(rank, ref, playerList.get(ln).getPlayerCard()));
+			playerList.get(ln).generateCardPower();
 		}
 	}
 
-	//检查玩家筹码是否为0
 	private static void checkPlayerStatus() {
 		List<Player> p = new ArrayList<>();
 		for (Player player : playerList) {
-			if (player.getChips() <= 0) {
+			if (player.getChips() <= Rule.TableFee
+					|| playerStatus[player.getSeatNo()] == 0) {
 				playerStatus[player.getSeatNo()] = -1;
 				System.out.println("Player on seat No." + (player.getSeatNo()+1) + ", " + player.toString() + "leaves.");
 			} else {
@@ -138,10 +181,11 @@ public class MainGame {
 		playerList = p;
 	}
 
-	private static void clearPlayerCardsAndCache() {
+	private static void clearPlayerCardsNCacheNPower() {
 		for (Player player : playerList) {
 			player.getPlayerCard().clear();
 			player.getRankCache().clear();
+			player.setCardPower2Zero();
 		}
 	}
 
@@ -183,7 +227,6 @@ public class MainGame {
 		}
 		for (int i = 0; i < NewPlayerNum; i++) {
 			Player p = new Player();
-			playerList.add(p);
 			for (int j = 0; j < playerStatus.length; j++) {
 				if (playerStatus[j] == -1) {
 					playerStatus[j] = 1;
@@ -191,6 +234,19 @@ public class MainGame {
 					break;
 				}
 			}
+			if (p.getSeatNo() != -1 )
+			{
+				playerList.add(p);
+			} else {
+				System.out.println("something wrong happens: creating players.");
+			}
+		}
+	}
+
+	private static void chargeTableFee() {
+		for (Player p : playerList) {
+			p.reduceChips(Rule.TableFee);
+			if (p.getChips() <= 0) System.out.println("Something wrong happens: chargeTableFee.");
 		}
 	}
 

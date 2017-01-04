@@ -15,5 +15,8 @@ public class Rule {
     public static final int combCardNum = 5;
 
     //最大玩家数
-    public static final int MaxPlayernum = 8;
+    public static final int MaxPlayernum = 10;
+
+    //每局收取桌费
+    public static final long TableFee = 10;
 }
