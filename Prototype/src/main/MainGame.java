@@ -16,7 +16,7 @@ public class MainGame {
 
 	private static PokerSet pokerset;
 	private static List<Player> playerList = new ArrayList<Player>();
-	private static List<Map<Integer, Long>> playerBet;    //记录玩家下注
+	private static Map<Integer, Long> playerBet;    //记录玩家下注
 	private static List<Long> betPool;
 	//-1空座  1玩家正常在座  2弃牌 3allIn 0起身(观战，下局开始前离开）
 	private static int[] playerStatus = new int[Rule.MaxPlayernum];
@@ -37,7 +37,7 @@ public class MainGame {
 			pokerset = new PokerSet();       //新牌
 			pokerset.shuffleTheCard();	     //洗牌
 
-			playerBet = new ArrayList<>();
+			playerBet = new HashMap<>();
 			betPool = new ArrayList<>();
 			Ref = new ArrayList<>();
 			clearPlayerCardsNCacheNPower();     //清空玩家手牌 和 最佳牌型缓存
@@ -71,13 +71,27 @@ public class MainGame {
 				}
 				playerDecision(round);
 			} //round
-			List<List<Player>> fc = finalCompare();
-			for (List<Player> l : fc) {
-				for (Player p : l) {
-					System.out.print(p.getCardPower() + " ");
+			List<List<Integer>> fc = finalCompare();
+			for (List<Integer> l : fc) {
+				for (Integer i : l) {
+					System.out.print(i + " ");
 				}
 				System.out.println();
 			}
+			System.out.print("betPool: ");
+			for (long lo : betPool) {
+				System.out.print(lo + " ");
+			}
+			System.out.println();
+
+			System.out.println("PlayerBet: ");
+			for (int i = 0; i < playerList.size(); i++)
+			{
+				System.out.print(i + " : " + playerBet.getOrDefault(i, 0L) + " ");
+			}
+			System.out.println();
+
+			distributeChips(fc);
 			pause(10);
 			for (Player p : playerList) {
 				System.out.println(p.toString());
@@ -86,9 +100,38 @@ public class MainGame {
 		} //while
 	}
 
+	private static void distributeChips(List<List<Integer>> fc) {
+		long totalBet = 0;
+		for (long l : betPool) {
+			totalBet += l;
+		}
+		int rank = 0;
+		while (totalBet > 0) { //todo 最后 ALLIN 与 对手相等
+			int pn = fc.get(rank).size();
+			if (pn == 0) break;
+			long betAdd = totalBet / pn;
+			for (int i : fc.get(rank)) {
+				if (betAdd >= playerBet.getOrDefault(i,0L) * 2) {
+					playerList.get(i).addChips( playerBet.getOrDefault(i,0L) * 2);
+					System.out.println(playerList.get(i).getName() + " gets " + playerBet.getOrDefault(i,0L) * 2);
+					totalBet -=playerBet.getOrDefault(i, 0L) * 2;
+					playerBet.put(i, 0L);
+					pn--;
+					betAdd = totalBet / pn;
+				}
+			}
+			for (int i : fc.get(rank)) {
+				if (playerBet.getOrDefault(i,0L) != 0) {
+					playerList.get(i).addChips(betAdd);
+					System.out.println(playerList.get(i).getName() + " gets " + betAdd);
+					totalBet -= betAdd;
+				}
+			}
+			rank++;
+		}
+	}
 
-
-	private static List<List<Player>> finalCompare(){
+	private static List<List<Integer>> finalCompare(){
 		List<Integer> avaliablePlayerIndex = new ArrayList<>();
 		avaliablePlayerIndex.clear();
 		for (int i = 0; i < playerList.size(); i++) {
@@ -113,19 +156,19 @@ public class MainGame {
 		}
 		// 上面 得到按牌力从大到小排序的 PlayerIndex
 		// 下方 得到奖金池，瓜分顺序
-		List<List<Player>> finalPlayerRank = new ArrayList<>();
+		List<List<Integer>> finalPlayerRank = new ArrayList<>();
 		int rank = 0;
-		List<Player> l = new ArrayList<>();
-		l.add(playerList.get(api_copy[0]));
+		List<Integer> l = new ArrayList<>();
+		l.add(api_copy[0]);
 		finalPlayerRank.add(l);
 		int j = 1;
 		while (j < api_copy.length) {
 			if (Compare.comp2p(playerList.get(api_copy[j-1]), playerList.get(api_copy[j])) == 0) {
-				finalPlayerRank.get(rank).add(playerList.get(api_copy[j]));
+				finalPlayerRank.get(rank).add(api_copy[j]);
 			} else {
 				rank++;
 				l = new ArrayList<>();
-				l.add(playerList.get(api_copy[j]));
+				l.add(api_copy[j]);
 				finalPlayerRank.add(l);
 			}
 			j++;
@@ -143,10 +186,11 @@ public class MainGame {
 			if (playerStatus[p.getSeatNo()] == 1) {
 				if (p.getChips() <= 500) {
 					chip = p.getChips();
+					playerStatus[p.getSeatNo()] = 3;
 				} else {
 					chip = 500;
 				}
-				//playerBet.get(i).put(round, chip); //todo
+				playerBet.put(i, playerBet.getOrDefault(i, 0L) + chip);
 				total += chip;
 				p.reduceChips(chip);
 			}
